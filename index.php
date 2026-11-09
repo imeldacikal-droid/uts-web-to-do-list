@@ -14,7 +14,7 @@
     <body class="sb-nav-fixed">
         <nav class="sb-topnav navbar navbar-expand navbar-dark bg-dark">
             <!-- Navbar Brand-->
-            <a class="navbar-brand ps-3" href="index.html">Start Bootstrap</a>
+            <a class="navbar-brand ps-3" href="index.html">Melkeyaa</a>
             <!-- Sidebar Toggle-->
             <button class="btn btn-link btn-sm order-1 order-lg-0 me-4 me-lg-0" id="sidebarToggle" href="#!"><i class="fas fa-bars"></i></button>
             <!-- Navbar Search-->
@@ -103,7 +103,7 @@
                     </div>
                     <div class="sb-sidenav-footer">
                         <div class="small">Logged in as:</div>
-                        Start Bootstrap
+                        Melkeyaa
                     </div>
                 </nav>
             </div>
@@ -112,7 +112,7 @@
                     <div class="container-fluid px-4">
                         <h1 class="mt-4">To Do List</h1>
                         <ol class="breadcrumb mb-4">
-                            <li class="breadcrumb-item active">To Do List</li>
+                            <li class="breadcrumb-item active">Time to get things done today!</li>
                         </ol>
                         
                         <!-- Baris Kartu Pertama (Normal) -->
