@@ -2,38 +2,34 @@
 session_start();
 include 'koneksi.php';
 
-// Jika user sudah login, langsung lempar ke dashboard.php
+// Jika sudah login, langsung ke halaman utama
 if (isset($_SESSION['user_id'])) {
-    header("Location: dashboard.php");
+    header("Location: index.php");
     exit();
 }
 
 $error = "";
 
 if (isset($_POST['login'])) {
-    $username = mysqli_real_escape_string($conn, $_POST['username']);
+    $username = trim($_POST['username']);
     $password = $_POST['password'];
 
-    // Cek username atau email
-    $result = mysqli_query($conn, "SELECT * FROM users WHERE username='$username' OR email='$username'");
-    
-    if (mysqli_num_rows($result) === 1) {
-        $row = mysqli_fetch_assoc($result);
-        if (password_verify($password, $row['password'])) {
-            // Set Session Login
-            $_SESSION['user_id']      = $row['id'];
-            $_SESSION['nama_lengkap'] = $row['nama_lengkap'];
-            $_SESSION['username']     = $row['username'];
-            
-            // Redirect ke halaman dashboard temanmu
-            header("Location: dashboard.php");
-            exit();
-        }
+    $stmt = mysqli_prepare($conn, "SELECT id, nama_lengkap, username, password FROM users WHERE username = ? OR email = ? LIMIT 1");
+    mysqli_stmt_bind_param($stmt, "ss", $username, $username);
+    mysqli_stmt_execute($stmt);
+    $row = mysqli_fetch_assoc(mysqli_stmt_get_result($stmt));
+
+    if ($row && password_verify($password, $row['password'])) {
+        session_regenerate_id(true);
+        $_SESSION['user_id']      = $row['id'];
+        $_SESSION['nama_lengkap'] = $row['nama_lengkap'];
+        $_SESSION['username']     = $row['username'];
+        header("Location: index.php");
+        exit();
     }
     $error = "Username/Email atau password salah!";
 }
 ?>
-
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -54,13 +50,18 @@ if (isset($_POST['login'])) {
                             <div class="card shadow-lg border-0 rounded-lg mt-5">
                                 <div class="card-header"><h3 class="text-center font-weight-light my-4">Login To-Do List</h3></div>
                                 <div class="card-body">
-                                    
-                                    <?php if(isset($_GET['status']) && $_GET['status'] == 'success'): ?>
+
+                                    <?php if (isset($_GET['status']) && $_GET['status'] == 'success'): ?>
                                         <div class="alert alert-success">Registrasi berhasil! Silakan login.</div>
                                     <?php endif; ?>
-
-                                    <?php if($error != ""): ?>
-                                        <div class="alert alert-danger"><?= $error; ?></div>
+                                    <?php if (isset($_GET['status']) && $_GET['status'] == 'reset'): ?>
+                                        <div class="alert alert-success">Password berhasil diubah! Silakan login.</div>
+                                    <?php endif; ?>
+                                    <?php if (isset($_GET['status']) && $_GET['status'] == 'logout'): ?>
+                                        <div class="alert alert-info">Kamu sudah logout.</div>
+                                    <?php endif; ?>
+                                    <?php if ($error != ""): ?>
+                                        <div class="alert alert-danger"><?= htmlspecialchars($error); ?></div>
                                     <?php endif; ?>
 
                                     <form method="POST" action="">
