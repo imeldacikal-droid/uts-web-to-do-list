@@ -1,6 +1,6 @@
 <?php
 // Koneksi MySQL (XAMPP default: user root, tanpa password).
-// Database & tabel otomatis
+// Database & tabel DIBUAT OTOMATIS saat pertama kali dibuka, jadi tidak perlu import SQL.
 $DB_HOST = 'localhost';
 $DB_USER = 'root';
 $DB_PASS = '';
@@ -68,5 +68,31 @@ if ($cek && mysqli_num_rows($cek) === 0) {
             ($adminId, 'Jumat',  '2026-11-13','09:00:00','11:00:00','Bimbingan Dosen','Ruang Dosen'),
             ($adminId, 'Sabtu',  '2026-11-14','08:00:00',NULL,'Olahraga / Jogging & Refreshing','Taman Kota'),
             ($adminId, 'Minggu', '2026-11-15','19:00:00',NULL,'Evaluasi & Persiapan Kuliah Minggu Depan','Rumah')");
+    }
+}
+
+// Tabel kolaborasi (fitur undang teman). Dibuat otomatis, juga untuk database yang sudah ada.
+$cek2 = mysqli_query($conn, "SHOW TABLES LIKE 'kolaborasi'");
+if ($cek2 && mysqli_num_rows($cek2) === 0) {
+    $ok = mysqli_query($conn, "CREATE TABLE kolaborasi (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        todo_id INT NOT NULL,
+        user_id INT NOT NULL,
+        pengundang_id INT NOT NULL,
+        status ENUM('pending','diterima','ditolak') NOT NULL DEFAULT 'pending',
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        UNIQUE KEY uniq_todo_user (todo_id, user_id),
+        FOREIGN KEY (todo_id) REFERENCES todos(id) ON DELETE CASCADE,
+        FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+        FOREIGN KEY (pengundang_id) REFERENCES users(id) ON DELETE CASCADE
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
+    if (!$ok) { die('Gagal membuat tabel kolaborasi: ' . mysqli_error($conn)); }
+}
+
+// Kolom kategori di tabel todos. Database lama diperbarui otomatis.
+$kol = mysqli_query($conn, "SHOW COLUMNS FROM todos LIKE 'kategori'");
+if ($kol && mysqli_num_rows($kol) === 0) {
+    if (!mysqli_query($conn, "ALTER TABLE todos ADD kategori VARCHAR(20) NOT NULL DEFAULT 'Lainnya' AFTER lokasi")) {
+        die('Gagal menambah kolom kategori: ' . mysqli_error($conn));
     }
 }

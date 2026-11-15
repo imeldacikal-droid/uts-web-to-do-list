@@ -10,6 +10,13 @@ $mulai    = trim($_POST['jam_mulai'] ?? '');
 $selesai  = trim($_POST['jam_selesai'] ?? '');
 $kegiatan = trim($_POST['kegiatan'] ?? '');
 $lokasi   = trim($_POST['lokasi'] ?? '');
+$kategori = $_POST['kategori'] ?? 'Lainnya';
+if (!isset($KATEGORI[$kategori])) { $kategori = 'Lainnya'; }
+// Kalau memilih "Lainnya" dan mengetik kategori sendiri, pakai ketikan itu (maks. 20 karakter)
+if ($kategori === 'Lainnya') {
+    $lain = trim($_POST['kategori_lain'] ?? '');
+    if ($lain !== '') { $kategori = mb_substr($lain, 0, 20); }
+}
 
 $balik = 'form.php?' . ($id ? 'id=' . $id . '&' : '');
 $tglOk = DateTime::createFromFormat('Y-m-d', $tanggal);
@@ -23,12 +30,12 @@ $selesai = $selesai === '' ? null : $selesai . ':00';
 
 $u = uid();
 if ($id) {
-    $stmt = mysqli_prepare($conn, "UPDATE todos SET hari=?, tanggal=?, jam_mulai=?, jam_selesai=?, kegiatan=?, lokasi=? WHERE id=? AND user_id=?");
-    mysqli_stmt_bind_param($stmt, 'ssssssii', $hari, $tanggal, $mulai, $selesai, $kegiatan, $lokasi, $id, $u);
+    $stmt = mysqli_prepare($conn, "UPDATE todos SET hari=?, tanggal=?, jam_mulai=?, jam_selesai=?, kegiatan=?, lokasi=?, kategori=? WHERE id=? AND user_id=?");
+    mysqli_stmt_bind_param($stmt, 'sssssssii', $hari, $tanggal, $mulai, $selesai, $kegiatan, $lokasi, $kategori, $id, $u);
     $pesan = 'Kegiatan berhasil diperbarui.';
 } else {
-    $stmt = mysqli_prepare($conn, "INSERT INTO todos (user_id, hari, tanggal, jam_mulai, jam_selesai, kegiatan, lokasi) VALUES (?,?,?,?,?,?,?)");
-    mysqli_stmt_bind_param($stmt, 'issssss', $u, $hari, $tanggal, $mulai, $selesai, $kegiatan, $lokasi);
+    $stmt = mysqli_prepare($conn, "INSERT INTO todos (user_id, hari, tanggal, jam_mulai, jam_selesai, kegiatan, lokasi, kategori) VALUES (?,?,?,?,?,?,?,?)");
+    mysqli_stmt_bind_param($stmt, 'isssssss', $u, $hari, $tanggal, $mulai, $selesai, $kegiatan, $lokasi, $kategori);
     $pesan = 'Kegiatan berhasil ditambahkan.';
 }
 

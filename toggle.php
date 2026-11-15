@@ -1,5 +1,6 @@
 <?php
 // Centang/uncentang "selesai" -> langsung UPDATE ke database (dipanggil via fetch)
+// Pemilik DAN kolaborator yang sudah menerima undangan boleh mencentang.
 require 'helper.php';
 header('Content-Type: application/json');
 if (!is_login() || $_SERVER['REQUEST_METHOD'] !== 'POST') {
@@ -8,8 +9,7 @@ if (!is_login() || $_SERVER['REQUEST_METHOD'] !== 'POST') {
     exit;
 }
 $id = (int)($_POST['id'] ?? 0);
-$u = uid();
 $selesai = (int)($_POST['selesai'] ?? 0) ? 1 : 0;
-$stmt = mysqli_prepare($conn, "UPDATE todos SET selesai = ? WHERE id = ? AND user_id = ?");
-mysqli_stmt_bind_param($stmt, 'iii', $selesai, $id, $u);
+$stmt = mysqli_prepare($conn, "UPDATE todos SET selesai = ? WHERE id = ? AND " . sql_todo_terlihat('todos'));
+mysqli_stmt_bind_param($stmt, 'ii', $selesai, $id);
 echo json_encode(['ok' => $id > 0 && mysqli_stmt_execute($stmt)]);

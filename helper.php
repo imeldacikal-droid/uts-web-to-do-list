@@ -33,3 +33,23 @@ function format_jam($mulai, $selesai) {
     $s = $selesai ? str_replace(':', '.', substr($selesai, 0, 5)) : 'selesai';
     return $m . ' - ' . $s;
 }
+
+// Kegiatan yang boleh dilihat pengguna: miliknya sendiri + yang undangannya sudah diterima
+function sql_todo_terlihat($alias = 'todos') {
+    $u = uid();
+    return "($alias.user_id = $u OR $alias.id IN (SELECT todo_id FROM kolaborasi WHERE user_id = $u AND status = 'diterima'))";
+}
+// Jumlah undangan kolaborasi yang belum dijawab (untuk badge di sidebar)
+function jml_undangan() {
+    global $conn;
+    $r = mysqli_query($conn, "SELECT COUNT(*) AS n FROM kolaborasi WHERE user_id = " . uid() . " AND status = 'pending'");
+    return $r ? (int)mysqli_fetch_assoc($r)['n'] : 0;
+}
+
+// Kategori kegiatan => kelas warna badge Bootstrap
+$KATEGORI = [
+    'Kuliah'     => 'bg-primary',
+    'Organisasi' => 'bg-success',
+    'Pribadi'    => 'bg-info text-dark',
+    'Lainnya'    => 'bg-secondary',
+];
