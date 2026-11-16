@@ -15,7 +15,7 @@ include 'partials/header.php';
     <div class="card mb-4">
         <div class="card-header"><i class="fas fa-circle-info me-1"></i> Apa itu To-Do List?</div>
         <div class="card-body">
-            <p>To-Do List adalah aplikasi web untuk mencatat dan mengatur kegiatan mingguan. Kegiatan dikelompokkan per hari, dari Senin sampai Minggu, sehingga jadwal lebih teratur dan tidak mudah terlewat. Setiap pengguna memiliki akun sendiri, jadi catatan kegiatan bersifat pribadi, dan kegiatan dapat dibagikan ke pengguna lain lewat fitur kolaborasi.</p>
+            <p>To-Do List adalah aplikasi web untuk mencatat dan mengatur kegiatan mingguan.Kegiatan dikelompokkan per bulan, minggu, dan hari, sehingga jadwal lebih teratur dan tidak mudah terlewat. Setiap pengguna memiliki akun sendiri, jadi catatan kegiatan bersifat pribadi, dan kegiatan dapat dibagikan ke pengguna lain lewat fitur kolaborasi.</p>
             <p class="mb-0">Aplikasi ini dibuat untuk memenuhi tugas Ujian Tengah Semester (UTS) mata kuliah Pemrograman Web, Program Studi Teknik Informatika, Universitas Paramadina.</p>
         </div>
     </div>
@@ -27,7 +27,7 @@ include 'partials/header.php';
                 <div class="card-body">
                     <ul class="mb-0">
                         <li>Daftar akun, login, dan logout memakai session PHP</li>
-                        <li>Kegiatan per hari (Senin sampai Minggu) dengan progres selesai</li>
+                        <li>Kegiatan per bulan, minggu, dan hari dengan progres selesai</li>
                         <li>Tambah, lihat, ubah, dan hapus kegiatan (CRUD)</li>
                         <li>Centang kegiatan selesai tanpa memuat ulang halaman</li>
                         <li>Kategori kegiatan (Kuliah, Organisasi, Pribadi, Lainnya)</li>
@@ -44,7 +44,7 @@ include 'partials/header.php';
                 <div class="card-body">
                     <ol class="mb-0">
                         <li>Daftar akun, lalu login.</li>
-                        <li>Pilih hari di halaman utama, lalu klik Tambah Kegiatan.</li>
+                        <li>Pilih bulan, minggu, lalu hari, kemudian klik Tambah Kegiatan.</li>
                         <li>Centang kegiatan yang sudah selesai.</li>
                         <li>Klik Send untuk mengajak pengguna lain berkolaborasi.</li>
                         <li>Buka menu Undangan untuk menerima atau menolak ajakan.</li>
