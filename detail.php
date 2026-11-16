@@ -2,9 +2,12 @@
 require 'helper.php';
 require_login();
 
-$hari = $_GET['hari'] ?? '';
-if (!isset($HARI[$hari])) { header('Location: dashboard.php'); exit; }
-$judul_halaman = 'Detail ' . $hari;
+$tanggal = $_GET['tanggal'] ?? '';
+if (!tanggal_valid($tanggal)) { header('Location: dashboard.php'); exit; }
+$hari = $NAMA_HARI[(int)date('N', strtotime($tanggal))];
+$bulan = (int)date('n', strtotime($tanggal));
+$minggu = minggu_ke($tanggal);
+$judul_halaman = 'Detail ' . $hari . ', ' . tgl_indo($tanggal);
 $menu_aktif = 'dashboard';
 $u = uid();
 
@@ -13,9 +16,9 @@ $stmt = mysqli_prepare($conn, "SELECT t.*, pm.nama AS pemilik,
         (SELECT COUNT(*) FROM kolaborasi k WHERE k.todo_id = t.id AND k.status = 'diterima') AS jml_kolab,
         (SELECT k2.id FROM kolaborasi k2 WHERE k2.todo_id = t.id AND k2.user_id = $u AND k2.status = 'diterima' LIMIT 1) AS kolab_id
     FROM todos t JOIN users pm ON pm.id = t.user_id
-    WHERE t.hari = ? AND " . sql_todo_terlihat('t') . "
+    WHERE t.tanggal = ? AND " . sql_todo_terlihat('t') . "
     ORDER BY t.tanggal, t.jam_mulai");
-mysqli_stmt_bind_param($stmt, 's', $hari);
+mysqli_stmt_bind_param($stmt, 's', $tanggal);
 mysqli_stmt_execute($stmt);
 $semua = mysqli_fetch_all(mysqli_stmt_get_result($stmt), MYSQLI_ASSOC);
 
@@ -61,10 +64,9 @@ JS;
 include 'partials/header.php';
 ?>
 <div class="container-fluid px-4">
-    <h1 class="mt-4">Kegiatan Hari <?= e($hari) ?></h1>
+    <h1 class="mt-4">Kegiatan Hari <?= e($hari) ?>, <?= tgl_indo($tanggal) ?></h1>
     <ol class="breadcrumb mb-4">
-        <li class="breadcrumb-item"><a href="dashboard.php">To Do List</a></li>
-        <li class="breadcrumb-item active"><?= e($hari) ?></li>
+        <?= breadcrumb_tanggal($tanggal) ?>
     </ol>
 
     <?php if (!empty($_GET['msg'])): ?>
@@ -78,28 +80,33 @@ include 'partials/header.php';
     <?php endif; ?>
 
     <div class="mb-3 d-flex flex-wrap gap-2">
-        <?php foreach ($HARI as $nama => $w): ?>
-            <a href="detail.php?hari=<?= $nama ?>" class="btn btn-sm <?= $nama === $hari ? 'btn-dark' : 'btn-outline-dark' ?>"><?= $nama ?></a>
+        <?php foreach (tanggal_minggu($bulan, $TAHUN, $minggu) as $nama => $tg):
+            $dlm = ((int)date('n', strtotime($tg)) === $bulan); ?>
+            <?php if ($dlm): ?>
+                <a href="detail.php?tanggal=<?= $tg ?>" class="btn btn-sm <?= $tg === $tanggal ? 'btn-dark' : 'btn-outline-dark' ?>"><?= $nama ?> <?= date('j', strtotime($tg)) ?></a>
+            <?php else: ?>
+                <span class="btn btn-sm btn-outline-secondary disabled"><?= $nama ?> <?= date('j', strtotime($tg)) ?></span>
+            <?php endif; ?>
         <?php endforeach; ?>
     </div>
 
     <div class="card mb-4">
         <div class="card-header d-flex justify-content-between align-items-center" style="border-left: 6px solid <?= $warna ?>;">
-            <span><i class="fas fa-list-check me-1"></i> Daftar Kegiatan <?= e($hari) ?>
+            <span><i class="fas fa-list-check me-1"></i> Daftar Kegiatan <?= e($hari) ?>, <?= tgl_pendek($tanggal) ?>
                 <span class="badge bg-secondary ms-2" id="progress" data-done="<?= $done ?>" data-total="<?= $total ?>"><?= $done ?>/<?= $total ?> selesai</span>
             </span>
-            <a href="form.php?hari=<?= e($hari) ?>" class="btn btn-sm btn-primary"><i class="fas fa-plus"></i> Tambah Kegiatan</a>
+            <a href="form.php?tanggal=<?= e($tanggal) ?>" class="btn btn-sm btn-primary"><i class="fas fa-plus"></i> Tambah Kegiatan</a>
         </div>
         <div class="card-body">
             <div class="btn-group btn-group-sm mb-3" role="group" aria-label="Filter status">
-                <a href="detail.php?hari=<?= e($hari) ?>&status=semua" class="btn <?= $filter === 'semua' ? 'btn-primary' : 'btn-outline-primary' ?>">Semua (<?= $total ?>)</a>
-                <a href="detail.php?hari=<?= e($hari) ?>&status=belum" class="btn <?= $filter === 'belum' ? 'btn-primary' : 'btn-outline-primary' ?>">Belum selesai (<?= $belum ?>)</a>
-                <a href="detail.php?hari=<?= e($hari) ?>&status=selesai" class="btn <?= $filter === 'selesai' ? 'btn-primary' : 'btn-outline-primary' ?>">Selesai (<?= $done ?>)</a>
+                <a href="detail.php?tanggal=<?= e($tanggal) ?>&status=semua" class="btn <?= $filter === 'semua' ? 'btn-primary' : 'btn-outline-primary' ?>">Semua (<?= $total ?>)</a>
+                <a href="detail.php?tanggal=<?= e($tanggal) ?>&status=belum" class="btn <?= $filter === 'belum' ? 'btn-primary' : 'btn-outline-primary' ?>">Belum selesai (<?= $belum ?>)</a>
+                <a href="detail.php?tanggal=<?= e($tanggal) ?>&status=selesai" class="btn <?= $filter === 'selesai' ? 'btn-primary' : 'btn-outline-primary' ?>">Selesai (<?= $done ?>)</a>
             </div>
 
             <?php if (!$rows): ?>
                 <p class="text-muted mb-0">
-                    <?= $total === 0 ? 'Belum ada kegiatan di hari ' . e($hari) . '.' : 'Tidak ada kegiatan dengan filter ini.' ?>
+                    <?= $total === 0 ? 'Belum ada kegiatan pada ' . e($hari) . ', ' . tgl_indo($tanggal) . '.' : 'Tidak ada kegiatan dengan filter ini.' ?>
                 </p>
             <?php else: ?>
             <div class="table-responsive">
@@ -143,6 +150,7 @@ include 'partials/header.php';
                                 <?php else: ?>
                                     <form action="kolab_aksi.php" method="post" class="d-inline" onsubmit="return confirm('Keluar dari kolaborasi kegiatan ini?');">
                                         <input type="hidden" name="aksi" value="keluar">
+                                        <input type="hidden" name="tanggal" value="<?= e($tanggal) ?>">
                                         <input type="hidden" name="kolab_id" value="<?= (int)$r['kolab_id'] ?>">
                                         <button class="btn btn-sm btn-outline-danger"><i class="fas fa-right-from-bracket"></i> Keluar</button>
                                     </form>
@@ -156,5 +164,6 @@ include 'partials/header.php';
             <?php endif; ?>
         </div>
     </div>
+    <a href="minggu.php?bulan=<?= $bulan ?>&amp;minggu=<?= $minggu ?>" class="btn btn-secondary mb-4">Kembali</a>
 </div>
 <?php include 'partials/footer.php'; ?>
