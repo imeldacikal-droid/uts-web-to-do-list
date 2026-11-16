@@ -4,7 +4,7 @@ require_login();
 $menu_aktif = 'dashboard';
 
 $id = (int)($_GET['id'] ?? 0);
-$data = ['tanggal' => '', 'jam_mulai' => '', 'jam_selesai' => '', 'kegiatan' => '', 'lokasi' => '', 'hari' => $_GET['hari'] ?? 'Senin'];
+$data = ['tanggal' => '', 'jam_mulai' => '', 'jam_selesai' => '', 'kegiatan' => '', 'lokasi' => '', 'kategori' => 'Lainnya', 'hari' => $_GET['hari'] ?? 'Senin'];
 
 if ($id) {
     $stmt = mysqli_prepare($conn, "SELECT * FROM todos WHERE id = ? AND user_id = ?");
@@ -42,7 +42,22 @@ function updateHari() {
 tgl.addEventListener('change', updateHari);
 updateHari();
 </script>
+<script>
+// Kotak ketik kategori hanya tampil saat "Lainnya" dipilih
+var selKat = document.getElementById('kategori'), kotakLain = document.getElementById('kategori_lain');
+function aturKotakLain() {
+    var tampil = selKat.value === 'Lainnya';
+    kotakLain.style.display = tampil ? '' : 'none';
+    if (!tampil) { kotakLain.value = ''; }
+}
+selKat.addEventListener('change', aturKotakLain);
+aturKotakLain();
+</script>
 JS;
+// Kategori buatan sendiri (di luar daftar) ditampilkan sebagai "Lainnya" + isi kotak ketik
+$kat = $data['kategori'] ?? 'Lainnya';
+$kat_lain = '';
+if (!isset($KATEGORI[$kat])) { $kat_lain = $kat; $kat = 'Lainnya'; }
 include 'partials/header.php';
 ?>
 <div class="container-fluid px-4">
@@ -87,6 +102,16 @@ include 'partials/header.php';
                 <div class="mb-3">
                     <label class="form-label" for="lokasi">Tempat</label>
                     <input type="text" class="form-control" id="lokasi" name="lokasi" value="<?= e($data['lokasi']) ?>" maxlength="255" required>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label" for="kategori">Kategori</label>
+                    <select class="form-select" id="kategori" name="kategori">
+                        <?php foreach ($KATEGORI as $k => $kelas): ?>
+                            <option value="<?= e($k) ?>" <?= $kat === $k ? 'selected' : '' ?>><?= e($k) ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                    <input type="text" class="form-control mt-2" id="kategori_lain" name="kategori_lain" maxlength="20"
+                        placeholder="Ketik kategori sendiri (opsional, maks. 20 karakter)" value="<?= e($kat_lain) ?>">
                 </div>
                 <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Simpan</button>
                 <a href="<?= e($kembali) ?>" class="btn btn-secondary">Batal</a>
