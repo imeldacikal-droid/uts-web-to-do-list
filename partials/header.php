@@ -38,9 +38,18 @@ $menu_aktif = $menu_aktif ?? 'dashboard';
                                 <div class="sb-nav-link-icon"><i class="fas fa-list-check"></i></div>
                                 To Do List
                             </a>
+                            <a class="nav-link <?= $menu_aktif === 'undangan' ? 'active' : '' ?>" href="undangan.php">
+                                <div class="sb-nav-link-icon"><i class="fas fa-envelope"></i></div>
+                                Undangan
+                                <?php $nu = jml_undangan(); if ($nu > 0): ?><span class="badge bg-danger ms-2"><?= $nu ?></span><?php endif; ?>
+                            </a>
                             <a class="nav-link <?= $menu_aktif === 'about' ? 'active' : '' ?>" href="about.php">
                                 <div class="sb-nav-link-icon"><i class="fas fa-user"></i></div>
                                 Profil
+                            </a>
+                            <a class="nav-link <?= $menu_aktif === 'tentang' ? 'active' : '' ?>" href="tentang.php">
+                                <div class="sb-nav-link-icon"><i class="fas fa-circle-info"></i></div>
+                                Tentang Aplikasi
                             </a>
                             <a class="nav-link" href="logout.php">
                                 <div class="sb-nav-link-icon"><i class="fas fa-right-from-bracket"></i></div>

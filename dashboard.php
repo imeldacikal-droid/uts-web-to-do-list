@@ -6,10 +6,10 @@ $menu_aktif = 'dashboard';
 
 // Jumlah kegiatan & yang selesai per hari
 $ringkasan = [];
-$q = mysqli_query($conn, "SELECT hari, COUNT(*) AS total, SUM(selesai) AS done FROM todos WHERE user_id = " . uid() . " GROUP BY hari");
+$q = mysqli_query($conn, "SELECT hari, COUNT(*) AS total, SUM(selesai) AS done FROM todos WHERE " . sql_todo_terlihat() . " GROUP BY hari");
 while ($r = mysqli_fetch_assoc($q)) { $ringkasan[$r['hari']] = $r; }
 
-$semua = mysqli_query($conn, "SELECT * FROM todos WHERE user_id = " . uid() . " ORDER BY tanggal, jam_mulai");
+$semua = mysqli_query($conn, "SELECT * FROM todos WHERE " . sql_todo_terlihat() . " ORDER BY tanggal, jam_mulai");
 
 $script_tambahan = <<<'JS'
 <script src="https://cdn.jsdelivr.net/npm/simple-datatables@7.1.2/dist/umd/simple-datatables.min.js" crossorigin="anonymous"></script>
@@ -71,6 +71,7 @@ include 'partials/header.php';
                         <th>Pukul</th>
                         <th>Kegiatan</th>
                         <th>Lokasi</th>
+                        <th>Kategori</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -82,6 +83,7 @@ include 'partials/header.php';
                         <td><?= format_jam($t['jam_mulai'], $t['jam_selesai']) ?></td>
                         <td><?= e($t['kegiatan']) ?></td>
                         <td><?= e($t['lokasi']) ?></td>
+                        <td><span class="badge <?= $KATEGORI[$t['kategori']] ?? 'bg-secondary' ?>"><?= e($t['kategori']) ?></span></td>
                     </tr>
                     <?php endwhile; ?>
                 </tbody>
