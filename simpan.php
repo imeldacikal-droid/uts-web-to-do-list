@@ -20,8 +20,8 @@ if ($kategori === 'Lainnya') {
 
 $balik = 'form.php?' . ($id ? 'id=' . $id . '&' : '');
 $tglOk = DateTime::createFromFormat('Y-m-d', $tanggal);
-if (!$tglOk || $tglOk->format('Y-m-d') !== $tanggal || $mulai === '' || $kegiatan === '' || $lokasi === '') {
-    header('Location: ' . $balik . 'err=' . urlencode('Semua kolom wajib diisi (kecuali jam selesai).'));
+if (!$tglOk || !tanggal_valid($tanggal) || $mulai === '' || $kegiatan === '' || $lokasi === '') {
+    header('Location: ' . $balik . 'err=' . urlencode('Semua kolom wajib diisi (kecuali jam selesai), dan tanggal harus di tahun ' . $TAHUN . '.'));
     exit;
 }
 $hari    = $NAMA_HARI[(int)date('N', strtotime($tanggal))]; // hari dihitung dari tanggal
@@ -44,5 +44,5 @@ if (!mysqli_stmt_execute($stmt)) {
     exit;
 }
 
-header('Location: detail.php?hari=' . urlencode($hari) . '&msg=' . urlencode($pesan));
+header('Location: detail.php?tanggal=' . urlencode($tanggal) . '&msg=' . urlencode($pesan));
 exit;

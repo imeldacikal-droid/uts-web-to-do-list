@@ -58,7 +58,8 @@ if ($aksi === 'keluar') {
     $stmt = mysqli_prepare($conn, "DELETE FROM kolaborasi WHERE id = ? AND user_id = ?");
     mysqli_stmt_bind_param($stmt, 'ii', $kolab_id, $u);
     mysqli_stmt_execute($stmt);
-    balik('dashboard.php', 'msg', 'Kamu sudah keluar dari kolaborasi.');
+    $tg = $_POST['tanggal'] ?? '';
+    balik(tanggal_valid($tg) ? 'detail.php?tanggal=' . $tg : 'dashboard.php', 'msg', 'Kamu sudah keluar dari kolaborasi.');
 }
 
 header('Location: dashboard.php');
