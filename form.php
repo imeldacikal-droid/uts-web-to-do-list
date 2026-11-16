@@ -4,7 +4,7 @@ require_login();
 $menu_aktif = 'dashboard';
 
 $id = (int)($_GET['id'] ?? 0);
-$data = ['tanggal' => '', 'jam_mulai' => '', 'jam_selesai' => '', 'kegiatan' => '', 'lokasi' => '', 'kategori' => 'Lainnya', 'hari' => $_GET['hari'] ?? 'Senin'];
+$data = ['tanggal' => '', 'jam_mulai' => '', 'jam_selesai' => '', 'kegiatan' => '', 'lokasi' => '', 'kategori' => 'Lainnya', 'hari' => ''];
 
 if ($id) {
     $stmt = mysqli_prepare($conn, "SELECT * FROM todos WHERE id = ? AND user_id = ?");
@@ -15,19 +15,14 @@ if ($id) {
     if (!$row) { header('Location: dashboard.php'); exit; }
     $data = $row;
 } else {
-    // Default tanggal = tanggal terdekat untuk hari yang dipilih
-    $en = ['Senin'=>'monday','Selasa'=>'tuesday','Rabu'=>'wednesday','Kamis'=>'thursday','Jumat'=>'friday','Sabtu'=>'saturday','Minggu'=>'sunday'];
-    if (isset($en[$data['hari']])) {
-        $t = strtotime('today');
-        if (strtolower(date('l', $t)) !== $en[$data['hari']]) { $t = strtotime('next ' . $en[$data['hari']]); }
-        $data['tanggal'] = date('Y-m-d', $t);
-    } else {
-        $data['hari'] = '';
-        $data['tanggal'] = date('Y-m-d');
-    }
+    // Default tanggal = tanggal yang dibuka dari halaman hari; kalau tidak ada, hari ini (kalau masih di tahun kalender)
+    $tg = $_GET['tanggal'] ?? '';
+    if (!tanggal_valid($tg)) { $tg = (int)date('Y') === $TAHUN ? date('Y-m-d') : $TAHUN . '-01-01'; }
+    $data['tanggal'] = $tg;
+    $data['hari'] = $NAMA_HARI[(int)date('N', strtotime($tg))];
 }
 $judul_halaman = $id ? 'Edit Kegiatan' : 'Tambah Kegiatan';
-$kembali = isset($HARI[$data['hari']]) ? 'detail.php?hari=' . $data['hari'] : 'dashboard.php';
+$kembali = tanggal_valid($data['tanggal']) ? 'detail.php?tanggal=' . $data['tanggal'] : 'dashboard.php';
 
 $script_tambahan = <<<'JS'
 <script>
@@ -78,7 +73,7 @@ include 'partials/header.php';
                 <div class="row">
                     <div class="col-md-6 mb-3">
                         <label class="form-label" for="tanggal">Tanggal</label>
-                        <input type="date" class="form-control" id="tanggal" name="tanggal" value="<?= e($data['tanggal']) ?>" required>
+                        <input type="date" class="form-control" id="tanggal" name="tanggal" value="<?= e($data['tanggal']) ?>" min="<?= $TAHUN ?>-01-01" max="<?= $TAHUN ?>-12-31" required>
                     </div>
                     <div class="col-md-6 mb-3">
                         <label class="form-label" for="hari">Hari (otomatis)</label>

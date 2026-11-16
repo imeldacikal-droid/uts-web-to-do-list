@@ -42,9 +42,7 @@ include 'partials/header.php';
 <div class="container-fluid px-4">
     <h1 class="mt-4">Kolaborasi Kegiatan</h1>
     <ol class="breadcrumb mb-4">
-        <li class="breadcrumb-item"><a href="dashboard.php">To Do List</a></li>
-        <li class="breadcrumb-item"><a href="detail.php?hari=<?= e($todo['hari']) ?>"><?= e($todo['hari']) ?></a></li>
-        <li class="breadcrumb-item active">Kolaborasi</li>
+        <?= breadcrumb_tanggal($todo['tanggal'], 'Kolaborasi') ?>
     </ol>
 
     <?php if (!empty($_GET['msg'])): ?><div class="alert alert-success"><?= e($_GET['msg']) ?></div><?php endif; ?>
@@ -129,6 +127,6 @@ include 'partials/header.php';
         </div>
     </div>
 
-    <a href="detail.php?hari=<?= e($todo['hari']) ?>" class="btn btn-secondary mb-4">Kembali</a>
+    <a href="detail.php?tanggal=<?= e($todo['tanggal']) ?>" class="btn btn-secondary mb-4">Kembali</a>
 </div>
 <?php include 'partials/footer.php'; ?>
